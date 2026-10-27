@@ -157,7 +157,7 @@ class Translations$general$zh_CN extends Translations$general$en {
   @override
   String get quickSave => '自动保存';
   @override
-  String get quickSaveFromFavorites => '自动保存来自“收藏夹(白名单)”设备的文件';
+  String get quickSaveFromFavorites => '自动保存来自收藏夹设备的文件';
   @override
   String get renamed => '重命名成功';
   @override

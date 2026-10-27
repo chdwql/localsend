@@ -18,12 +18,12 @@ ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness
   final colorScheme = _determineColorScheme(colorMode, customColor, brightness, dynamicColors);
 
   final lightInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
+    borderSide: BorderSide(color: Colors.black.withAlpha(12), width: 1),
     borderRadius: _borderRadius,
   );
 
   final darkInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
+    borderSide: BorderSide(color: Colors.white.withAlpha(18), width: 1),
     borderRadius: _borderRadius,
   );
 
@@ -74,11 +74,14 @@ ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness
         : null,
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: colorScheme.secondaryContainer,
+      fillColor: colorScheme.brightness == Brightness.light ? Colors.black.withAlpha(8) : Colors.white.withAlpha(12),
       border: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      focusedBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        borderRadius: _borderRadius,
+      ),
       enabledBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -180,12 +183,12 @@ ThemeData _getYaruTheme(Brightness brightness) {
   final colorScheme = baseTheme.colorScheme;
 
   final lightInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
+    borderSide: BorderSide(color: Colors.black.withAlpha(12), width: 1),
     borderRadius: _borderRadius,
   );
 
   final darkInputBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: colorScheme.secondaryContainer),
+    borderSide: BorderSide(color: Colors.white.withAlpha(18), width: 1),
     borderRadius: _borderRadius,
   );
 
@@ -201,11 +204,14 @@ ThemeData _getYaruTheme(Brightness brightness) {
         : null,
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: colorScheme.secondaryContainer,
+      fillColor: colorScheme.brightness == Brightness.light ? Colors.black.withAlpha(8) : Colors.white.withAlpha(12),
       border: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      focusedBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        borderRadius: _borderRadius,
+      ),
       enabledBorder: colorScheme.brightness == Brightness.light ? lightInputBorder : darkInputBorder,
-      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(

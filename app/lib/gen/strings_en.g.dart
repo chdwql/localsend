@@ -162,7 +162,7 @@ class Translations$general$en {
   String get quickSave => 'Quick Save';
 
   /// en: 'Quick Save for "Favorites"'
-  String get quickSaveFromFavorites => 'Quick Save for "Favorites"';
+  String get quickSaveFromFavorites => 'Quick Save for Favorites';
 
   /// en: 'Renamed'
   String get renamed => 'Renamed';
