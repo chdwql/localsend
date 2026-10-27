@@ -53,18 +53,14 @@ jobs:
         run: |
           mkdir -p secrets
           if [ -n "$KEY_PROPERTIES" ] && [ -n "$KEY_STORE" ]; then
-            echo "Decoding release keystore from secrets..."
             echo "$KEY_PROPERTIES" | base64 -di > app/android/key.properties
             echo "$KEY_STORE" | base64 -di > secrets/android-keystore.jks
           else
-            echo "Secrets not provided; generating self-signed release keystore for Fork build..."
             keytool -genkey -v -keystore secrets/android-keystore.jks -alias localsend -keyalg RSA -keysize 2048 -validity 10000 -storepass localsend -keypass localsend -dname "CN=LocalSend, OU=Fork, O=LocalSend, L=City, S=State, C=US"
-            cat <<EOF > app/android/key.properties
-keyAlias=localsend
-keyPassword=localsend
-storeFile=../../secrets/android-keystore.jks
-storePassword=localsend
-EOF
+            echo "keyAlias=localsend" > app/android/key.properties
+            echo "keyPassword=localsend" >> app/android/key.properties
+            echo "storeFile=../../secrets/android-keystore.jks" >> app/android/key.properties
+            echo "storePassword=localsend" >> app/android/key.properties
           fi
 
       - name: Install Flutter
