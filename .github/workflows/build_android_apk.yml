@@ -51,15 +51,17 @@ jobs:
           KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
           KEY_STORE: ${{ secrets.ANDROID_KEY_STORE }}
         run: |
-          mkdir -p secrets
+          mkdir -p secrets app/secrets
           if [ -n "$KEY_PROPERTIES" ] && [ -n "$KEY_STORE" ]; then
             echo "$KEY_PROPERTIES" | base64 -di > app/android/key.properties
             echo "$KEY_STORE" | base64 -di > secrets/android-keystore.jks
+            cp secrets/android-keystore.jks app/secrets/android-keystore.jks
           else
             keytool -genkey -v -keystore secrets/android-keystore.jks -alias localsend -keyalg RSA -keysize 2048 -validity 10000 -storepass localsend -keypass localsend -dname "CN=LocalSend, OU=Fork, O=LocalSend, L=City, S=State, C=US"
+            cp secrets/android-keystore.jks app/secrets/android-keystore.jks
             echo "keyAlias=localsend" > app/android/key.properties
             echo "keyPassword=localsend" >> app/android/key.properties
-            echo "storeFile=../../secrets/android-keystore.jks" >> app/android/key.properties
+            echo "storeFile=${{ env.APK_BUILD_DIR }}/secrets/android-keystore.jks" >> app/android/key.properties
             echo "storePassword=localsend" >> app/android/key.properties
           fi
 
