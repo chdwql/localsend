@@ -54,7 +54,7 @@ ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness
     useMaterial3: true,
     scaffoldBackgroundColor: colorScheme.brightness == Brightness.light ? const Color(0xFFF3F4F7) : const Color(0xFF131316),
     cardColor: colorScheme.brightness == Brightness.light ? Colors.white : const Color(0xFF1E1F24),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(22),

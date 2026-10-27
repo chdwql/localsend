@@ -211,7 +211,7 @@ class _ReceiveTabState extends State<ReceiveTab> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              t.settingsTab.general.quickSave,
+                              t.general.quickSave,
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
