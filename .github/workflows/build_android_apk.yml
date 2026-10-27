@@ -39,23 +39,33 @@ jobs:
           mkdir -p $APK_BUILD_DIR
           cp -r . $APK_BUILD_DIR
 
-      - name: Decode key.properties file
-        working-directory: ${{ env.APK_BUILD_DIR }}
-        env:
-          ENCODED_STRING: ${{ secrets.ANDROID_KEY_PROPERTIES }}
-        run: echo $ENCODED_STRING | base64 -di > app/android/key.properties
-
-      - name: Decode android-keystore.jks file
-        working-directory: ${{ env.APK_BUILD_DIR }}
-        env:
-          ENCODED_STRING: ${{ secrets.ANDROID_KEY_STORE }}
-        run: mkdir secrets && echo $ENCODED_STRING | base64 -di > secrets/android-keystore.jks
-
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Configure Android signing keystore
+        working-directory: ${{ env.APK_BUILD_DIR }}
+        env:
+          KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+          KEY_STORE: ${{ secrets.ANDROID_KEY_STORE }}
+        run: |
+          mkdir -p secrets
+          if [ -n "$KEY_PROPERTIES" ] && [ -n "$KEY_STORE" ]; then
+            echo "Decoding release keystore from secrets..."
+            echo "$KEY_PROPERTIES" | base64 -di > app/android/key.properties
+            echo "$KEY_STORE" | base64 -di > secrets/android-keystore.jks
+          else
+            echo "Secrets not provided; generating self-signed release keystore for Fork build..."
+            keytool -genkey -v -keystore secrets/android-keystore.jks -alias localsend -keyalg RSA -keysize 2048 -validity 10000 -storepass localsend -keypass localsend -dname "CN=LocalSend, OU=Fork, O=LocalSend, L=City, S=State, C=US"
+            cat <<EOF > app/android/key.properties
+keyAlias=localsend
+keyPassword=localsend
+storeFile=../../secrets/android-keystore.jks
+storePassword=localsend
+EOF
+          fi
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
