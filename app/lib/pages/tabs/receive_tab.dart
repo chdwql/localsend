@@ -12,7 +12,6 @@ import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/util/ui/nav_bar_padding.dart';
 import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
-import 'package:localsend_app/widget/column_list_view.dart';
 import 'package:localsend_app/widget/custom_icon_button.dart';
 import 'package:localsend_app/widget/local_send_logo.dart';
 import 'package:localsend_app/widget/responsive_list_view.dart';
@@ -30,222 +29,319 @@ class ReceiveTab extends StatefulWidget {
 }
 
 class _ReceiveTabState extends State<ReceiveTab> {
-  /// Whether the advanced network info is shown
   bool _showAdvanced = false;
 
-  /// Whether the history button is shown
-  /// This extra boolean is needed to delay the animation
-  bool _showHistoryButton = true;
-
-  Future<void> _toggleAdvanced() async {
-    if (_showAdvanced) {
-      setState(() => _showAdvanced = false);
-      await sleepAsync(200);
-      if (mounted) {
-        setState(() => _showHistoryButton = true);
-      }
-    } else {
-      setState(() {
-        _showAdvanced = true;
-        _showHistoryButton = false;
-      });
-    }
+  void _toggleAdvanced() {
+    setState(() => _showAdvanced = !_showAdvanced);
   }
 
   @override
   Widget build(BuildContext context) {
-    final alias = context.watch(settingsProvider.select((s) => s.alias));
+    final settings = context.watch(settingsProvider);
     final serverState = context.watch(serverProvider);
     final localIps = context.watch(localIpProvider.select((s) => s.localIps));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final cardBg = isDark ? const Color(0xFF1E1F24) : Colors.white;
+    final borderColor = isDark ? Colors.white.withAlpha(18) : Colors.black.withAlpha(10);
+    final isOnline = serverState != null;
 
     return Stack(
       children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: ResponsiveListView.defaultMaxWidth),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(30, 30, 30, 30 + getNavBarPadding(context)),
-              child: ColumnListView(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+        ResponsiveListView(
+          padding: EdgeInsets.fromLTRB(20, 24, 20, 30 + getNavBarPadding(context)),
+          children: [
+            // Top Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.receiveTab.title,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
                       children: [
-                        InitialFadeTransition(
-                          duration: const Duration(milliseconds: 300),
-                          delay: const Duration(milliseconds: 200),
-                          child: Consumer(
-                            builder: (context, ref) {
-                              final animations = ref.watch(animationProvider);
-                              final activeTab = ref.watch(homePageControllerProvider.select((state) => state.currentTab));
-                              return RotatingWidget(
-                                duration: const Duration(seconds: 15),
-                                spinning: serverState != null && animations && activeTab == HomeTab.receive,
-                                child: const LocalSendLogo(withText: false),
-                              );
-                            },
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isOnline ? Colors.green : Colors.grey,
                           ),
                         ),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(serverState?.alias ?? alias, style: const TextStyle(fontSize: 48)),
-                        ),
-                        InitialFadeTransition(
-                          duration: const Duration(milliseconds: 300),
-                          delay: const Duration(milliseconds: 500),
-                          child: Text(
-                            serverState == null ? t.general.offline : localIps.map((ip) => '#${ip.visualId}').toSet().join(' '),
-                            style: const TextStyle(fontSize: 24),
-                            textAlign: TextAlign.center,
+                        const SizedBox(width: 6),
+                        Text(
+                          isOnline ? 'Online • ${serverState.port}' : t.general.offline,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.white.withAlpha(160) : const Color(0xFF6B7280),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Center(
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          await context.global.dispatchAsync(NavigateAction.push(const WebSharePage()));
-                        },
-                        icon: Icon(Icons.language),
-                        label: Text(t.receiveTab.link),
+                  ],
+                ),
+                Row(
+                  children: [
+                    CustomIconButton(
+                      onPressed: () async {
+                        await context.push(() => const ReceiveHistoryPage());
+                      },
+                      child: const Icon(Icons.history, size: 22),
+                    ),
+                    const SizedBox(width: 4),
+                    CustomIconButton(
+                      onPressed: _toggleAdvanced,
+                      child: Icon(
+                        _showAdvanced ? Icons.info : Icons.info_outline,
+                        size: 22,
+                        color: _showAdvanced ? colorScheme.primary : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Main Device Status Card
+            Card(
+              margin: EdgeInsets.zero,
+              color: cardBg,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+                side: BorderSide(color: borderColor, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
+                child: Column(
+                  children: [
+                    Consumer(
+                      builder: (context, ref) {
+                        final animations = ref.watch(animationProvider);
+                        final activeTab = ref.watch(homePageControllerProvider.select((state) => state.currentTab));
+                        return RotatingWidget(
+                          duration: const Duration(seconds: 15),
+                          spinning: isOnline && animations && activeTab == HomeTab.receive,
+                          child: const LocalSendLogo(withText: false),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      serverState?.alias ?? settings.alias,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: ShapeDecoration(
+                        shape: const StadiumBorder(),
+                        color: isDark ? Colors.white.withAlpha(14) : Colors.black.withAlpha(8),
+                      ),
+                      child: Text(
+                        !isOnline
+                            ? t.general.offline
+                            : localIps.map((ip) => '#${ip.visualId}').toSet().join(' '),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white.withAlpha(200) : const Color(0xFF4B5563),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Dual Quick Action Cards (Dashboard style)
+            Row(
+              children: [
+                // Quick Save toggle card
+                Expanded(
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    color: cardBg,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: borderColor, width: 1),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () async {
+                        await context.ref.notifier(settingsProvider).setQuickSave(!settings.quickSave);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(
+                                  Icons.bolt,
+                                  size: 22,
+                                  color: settings.quickSave ? Colors.amber : (isDark ? Colors.white54 : Colors.black45),
+                                ),
+                                Switch(
+                                  value: settings.quickSave,
+                                  onChanged: (val) async {
+                                    await context.ref.notifier(settingsProvider).setQuickSave(val);
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              t.settingsTab.general.quickSave,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              settings.quickSave ? t.general.save : t.general.close,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: settings.quickSave
+                                    ? Colors.green
+                                    : (isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280)),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
-                ],
-              ),
-            ),
-          ),
-        ),
-        _InfoBox(
-          serverState: serverState,
-          localIps: localIps,
-          showAdvanced: _showAdvanced,
-        ),
-        _CornerButtons(
-          showAdvanced: _showAdvanced,
-          showHistoryButton: _showHistoryButton,
-          toggleAdvanced: _toggleAdvanced,
-        ),
-      ],
-    );
-  }
-}
-
-class _CornerButtons extends StatelessWidget {
-  final bool showAdvanced;
-  final bool showHistoryButton;
-  final Future<void> Function() toggleAdvanced;
-
-  const _CornerButtons({
-    required this.showAdvanced,
-    required this.showHistoryButton,
-    required this.toggleAdvanced,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topRight,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (!showAdvanced)
-              AnimatedOpacity(
-                opacity: showHistoryButton ? 1 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: CustomIconButton(
-                  onPressed: () async {
-                    await context.push(() => const ReceiveHistoryPage());
-                  },
-                  child: const Icon(Icons.history),
                 ),
-              ),
-            CustomIconButton(
-              key: const ValueKey('info-btn'),
-              onPressed: toggleAdvanced,
-              child: const Icon(Icons.info),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+                const SizedBox(width: 14),
 
-class _InfoBox extends StatelessWidget {
-  final ServerState? serverState;
-  final List<String> localIps;
-  final bool showAdvanced;
-
-  const _InfoBox({
-    required this.serverState,
-    required this.localIps,
-    required this.showAdvanced,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      crossFadeState: showAdvanced ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-      duration: const Duration(milliseconds: 200),
-      firstChild: Container(),
-      secondChild: Align(
-        alignment: Alignment.topRight,
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(15),
-              child: Table(
-                columnWidths: const {
-                  0: IntrinsicColumnWidth(),
-                  1: IntrinsicColumnWidth(),
-                  2: IntrinsicColumnWidth(),
-                },
-                children: [
-                  TableRow(
-                    children: [
-                      Text(t.receiveTab.infoBox.alias),
-                      const SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 30),
-                        child: SelectableText(serverState?.alias ?? '-'),
+                // Web Share card
+                Expanded(
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    color: cardBg,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: borderColor, width: 1),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () async {
+                        await context.global.dispatchAsync(NavigateAction.push(const WebSharePage()));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(
+                                  Icons.language,
+                                  size: 22,
+                                  color: colorScheme.primary,
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 14,
+                                  color: isDark ? Colors.white.withAlpha(120) : Colors.black.withAlpha(100),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              t.receiveTab.link,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              'Web Browser',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                  TableRow(
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Advanced Network Info (collapsible)
+            if (_showAdvanced)
+              Card(
+                margin: EdgeInsets.zero,
+                color: cardBg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: borderColor, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.receiveTab.infoBox.ip),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Text(
+                        t.receiveTab.infoBox.ip,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      if (localIps.isEmpty)
+                        Text(t.general.unknown)
+                      else
+                        ...localIps.map(
+                          (ip) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: SelectableText(
+                              ip,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark ? Colors.white.withAlpha(200) : const Color(0xFF374151),
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (localIps.isEmpty) Text(t.general.unknown),
-                          ...localIps.map((ip) => SelectableText(ip)),
+                          Text(t.receiveTab.infoBox.port, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          SelectableText(serverState?.port.toString() ?? '-'),
                         ],
                       ),
                     ],
                   ),
-                  TableRow(
-                    children: [
-                      Text(t.receiveTab.infoBox.port),
-                      const SizedBox(width: 10),
-                      SelectableText(serverState?.port.toString() ?? '-'),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+          ],
         ),
-      ),
+      ],
     );
   }
 }

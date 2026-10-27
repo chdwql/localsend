@@ -8,7 +8,7 @@ import 'package:localsend_app/util/ui/dynamic_colors.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:yaru/yaru.dart' as yaru;
 
-final _borderRadius = BorderRadius.circular(5);
+final _borderRadius = BorderRadius.circular(14);
 
 ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness, DynamicColors? dynamicColors) {
   if (colorMode == ColorMode.yaru) {
@@ -52,6 +52,19 @@ ThemeData getTheme(ColorMode colorMode, Color customColor, Brightness brightness
   return ThemeData(
     colorScheme: colorScheme,
     useMaterial3: true,
+    scaffoldBackgroundColor: colorScheme.brightness == Brightness.light ? const Color(0xFFF3F4F7) : const Color(0xFF131316),
+    cardColor: colorScheme.brightness == Brightness.light ? Colors.white : const Color(0xFF1E1F24),
+    cardTheme: CardTheme(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(
+          color: colorScheme.brightness == Brightness.light ? Colors.black.withAlpha(10) : Colors.white.withAlpha(16),
+          width: 1,
+        ),
+      ),
+      color: colorScheme.brightness == Brightness.light ? Colors.white : const Color(0xFF1E1F24),
+    ),
     // same density on all platforms so desktop matches mobile (defaults to compact on desktop)
     visualDensity: VisualDensity.standard,
     navigationBarTheme: colorScheme.brightness == Brightness.dark

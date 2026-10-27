@@ -48,7 +48,10 @@ class SettingsTab extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 8),
-              child: Text(t.settingsTab.title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+              child: Text(
+                t.settingsTab.title,
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+              ),
             ),
             const SizedBox(height: 30),
             _SettingsSection(
@@ -319,7 +322,7 @@ class SettingsTab extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   firstChild: Container(),
                   secondChild: Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(t.settingsTab.network.needRestart, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
                   ),
                 ),
@@ -502,7 +505,7 @@ class SettingsTab extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   firstChild: Container(),
                   secondChild: Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       t.settingsTab.network.portWarning(defaultPort: defaultPort),
                       style: const TextStyle(color: Colors.grey),
@@ -515,7 +518,7 @@ class SettingsTab extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   firstChild: Container(),
                   secondChild: Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       t.settingsTab.network.multicastGroupWarning(defaultMulticast: defaultMulticastGroup),
                       style: const TextStyle(color: Colors.grey),
@@ -626,7 +629,7 @@ class _SettingsEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Expanded(
@@ -745,25 +748,60 @@ class _SettingsSection extends StatelessWidget {
   const _SettingsSection({
     required this.title,
     required this.children,
-    this.padding = const EdgeInsets.only(bottom: 15),
+    this.padding = const EdgeInsets.only(bottom: 22),
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dividerColor = isDark ? Colors.white.withAlpha(14) : Colors.black.withAlpha(12);
+
     return Padding(
       padding: padding,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 10),
-              ...children,
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 6, bottom: 8),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white.withAlpha(190) : const Color(0xFF4B5563),
+                letterSpacing: -0.2,
+              ),
+            ),
           ),
-        ),
+          Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < children.length; i++) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: children[i],
+                    ),
+                    if (i < children.length - 1)
+                      Divider(
+                        height: 1,
+                        thickness: 1,
+                        indent: 16,
+                        endIndent: 16,
+                        color: dividerColor,
+                      ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

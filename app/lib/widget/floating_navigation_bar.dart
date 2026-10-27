@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-const _itemWidth = 68.0;
-const _indicatorSize = 52.0;
+const _itemWidth = 84.0;
+const _itemHeight = 54.0;
 const _animationDuration = Duration(milliseconds: 300);
 
 class FloatingNavigationDestination {
@@ -14,7 +14,7 @@ class FloatingNavigationDestination {
   });
 }
 
-/// An icon-only navigation bar that floats over the page content.
+/// A modern pill-shaped floating navigation bar inspired by FlClash / iOS 18 design.
 class FloatingNavigationBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
@@ -30,33 +30,50 @@ class FloatingNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final barBackground = isDark
+        ? const Color(0xFF1E1F24)
+        : Colors.white;
+
+    final indicatorColor = isDark
+        ? colorScheme.primary.withAlpha(50)
+        : colorScheme.primary.withAlpha(28);
 
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 16),
+        padding: const EdgeInsets.only(top: 6, bottom: 14),
         child: Center(
           heightFactor: 1,
           child: Material(
-            color: colorScheme.surfaceContainerHigh,
-            elevation: 3,
-            shadowColor: colorScheme.shadow,
-            shape: const StadiumBorder(),
+            color: barBackground,
+            elevation: 4,
+            shadowColor: Colors.black.withAlpha(isDark ? 80 : 35),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32),
+              side: BorderSide(
+                color: isDark ? Colors.white.withAlpha(20) : Colors.black.withAlpha(12),
+                width: 1,
+              ),
+            ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
               child: Stack(
+                alignment: Alignment.centerLeft,
                 children: [
+                  // Animated sliding pill indicator
                   AnimatedPositioned(
                     duration: _animationDuration,
                     curve: Curves.easeOutCubic,
-                    left: selectedIndex * _itemWidth + (_itemWidth - _indicatorSize) / 2,
+                    left: selectedIndex * _itemWidth,
                     top: 0,
+                    bottom: 0,
+                    width: _itemWidth,
                     child: Container(
-                      width: _indicatorSize,
-                      height: _indicatorSize,
                       decoration: ShapeDecoration(
-                        shape: const CircleBorder(),
-                        color: colorScheme.primary,
+                        shape: const StadiumBorder(),
+                        color: indicatorColor,
                       ),
                     ),
                   ),
@@ -96,27 +113,53 @@ class _FloatingNavigationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final activeColor = colorScheme.primary;
+    final inactiveColor = colorScheme.onSurfaceVariant.withAlpha(190);
+
     return Semantics(
       selected: selected,
       button: true,
-      child: Tooltip(
-        message: destination.label,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox(
-            width: _itemWidth,
-            height: _indicatorSize,
-            child: AnimatedScale(
-              duration: _animationDuration,
-              curve: Curves.easeOutBack,
-              scale: selected ? 1.15 : 1,
-              child: TweenAnimationBuilder<Color?>(
+      label: destination.label,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: SizedBox(
+          width: _itemWidth,
+          height: _itemHeight,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedScale(
                 duration: _animationDuration,
-                tween: ColorTween(end: selected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant),
-                builder: (context, color, _) => Icon(destination.icon, color: color),
+                curve: Curves.easeOutBack,
+                scale: selected ? 1.1 : 1.0,
+                child: TweenAnimationBuilder<Color?>(
+                  duration: _animationDuration,
+                  tween: ColorTween(end: selected ? activeColor : inactiveColor),
+                  builder: (context, color, _) => Icon(
+                    destination.icon,
+                    size: 22,
+                    color: color,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 3),
+              AnimatedDefaultTextStyle(
+                duration: _animationDuration,
+                curve: Curves.easeInOut,
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected ? activeColor : inactiveColor,
+                  letterSpacing: 0.1,
+                ),
+                child: Text(
+                  destination.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
       ),
