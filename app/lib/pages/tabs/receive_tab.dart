@@ -171,125 +171,134 @@ class _ReceiveTabState extends State<ReceiveTab> {
             ),
             const SizedBox(height: 16),
 
-            // Dual Quick Action Cards (Dashboard style)
-            Row(
-              children: [
-                // Quick Save toggle card
-                Expanded(
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    color: cardBg,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: borderColor, width: 1),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () async {
-                        await context.ref.notifier(settingsProvider).setQuickSave(!settings.quickSave);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(
-                                  Icons.bolt,
-                                  size: 22,
-                                  color: settings.quickSave ? Colors.amber : (isDark ? Colors.white54 : Colors.black45),
-                                ),
-                                Switch(
-                                  value: settings.quickSave,
-                                  onChanged: (val) async {
-                                    await context.ref.notifier(settingsProvider).setQuickSave(val);
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              t.general.quickSave,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              settings.quickSave ? t.general.save : t.general.close,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: settings.quickSave
-                                    ? Colors.green
-                                    : (isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280)),
-                              ),
-                            ),
-                          ],
-                        ),
+            // Quick Save Card (vertical full-width layout)
+            Card(
+              margin: EdgeInsets.zero,
+              color: cardBg,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: borderColor, width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: settings.quickSave
+                            ? Colors.amber.withAlpha(isDark ? 50 : 35)
+                            : (isDark ? Colors.white.withAlpha(14) : Colors.black.withAlpha(10)),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.bolt,
+                        size: 22,
+                        color: settings.quickSave
+                            ? Colors.amber
+                            : (isDark ? Colors.white54 : Colors.black45),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-
-                // Web Share card
-                Expanded(
-                  child: Card(
-                    margin: EdgeInsets.zero,
-                    color: cardBg,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: borderColor, width: 1),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t.general.quickSave,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            settings.quickSave ? t.general.save : t.general.close,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: settings.quickSave
+                                  ? Colors.green
+                                  : (isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () async {
-                        await context.global.dispatchAsync(NavigateAction.push(const WebSharePage()));
+                    Switch(
+                      value: settings.quickSave,
+                      onChanged: (val) async {
+                        await context.ref.notifier(settingsProvider).setQuickSave(val);
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Web Share Card (vertical full-width layout)
+            Card(
+              margin: EdgeInsets.zero,
+              color: cardBg,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: borderColor, width: 1),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () async {
+                  await context.global.dispatchAsync(NavigateAction.push(const WebSharePage()));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withAlpha(isDark ? 50 : 30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.language,
+                          size: 22,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(
-                                  Icons.language,
-                                  size: 22,
-                                  color: colorScheme.primary,
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                  color: isDark ? Colors.white.withAlpha(120) : Colors.black.withAlpha(100),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 18),
                             Text(
                               t.receiveTab.link,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
+                                letterSpacing: -0.2,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             Text(
                               'Web Browser',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 color: isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                      Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: isDark ? Colors.white.withAlpha(120) : Colors.black.withAlpha(100),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 16),
 

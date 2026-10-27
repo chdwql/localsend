@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:localsend_app/config/theme.dart';
 
-/// A [DropdownButton] with a custom theme.
-/// Currently, there is no easy way to apply color and border radius to all [DropdownButton].
+/// A [DropdownButton] styled for the FlClash / Modern iOS aesthetic.
 class CustomDropdownButton<T> extends StatelessWidget {
   final T value;
   final List<DropdownMenuItem<T>> items;
@@ -18,16 +16,21 @@ class CustomDropdownButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
-      color: Theme.of(context).inputDecorationTheme.fillColor,
-      shape: RoundedRectangleBorder(borderRadius: Theme.of(context).inputDecorationTheme.borderRadius),
+      color: isDark ? Colors.white.withAlpha(14) : Colors.black.withAlpha(8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: DropdownButton<T>(
         value: value,
         isExpanded: expanded,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        underline: Container(),
-        borderRadius: Theme.of(context).inputDecorationTheme.borderRadius,
+        underline: const SizedBox.shrink(),
+        borderRadius: BorderRadius.circular(16),
         items: items,
+        icon: const Icon(Icons.unfold_more, size: 18),
         onChanged: onChanged == null
             ? null
             : (value) {

@@ -628,26 +628,41 @@ class _SettingsEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label),
-                if (description != null)
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white : const Color(0xFF1E1F22),
+                  ),
+                ),
+                if (description != null) ...[
+                  const SizedBox(height: 2),
                   Text(
                     description!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280),
+                      height: 1.25,
+                    ),
                   ),
+                ],
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 150,
+          const SizedBox(width: 12),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 50, maxWidth: 175),
             child: child,
           ),
         ],
@@ -676,29 +691,14 @@ class _BooleanEntry extends StatelessWidget {
     return _SettingsEntry(
       label: label,
       description: description,
-      child: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: 50,
-            decoration: BoxDecoration(
-              color: theme.inputDecorationTheme.fillColor,
-              borderRadius: theme.inputDecorationTheme.borderRadius,
-            ),
-          ),
-          Positioned.fill(
-            child: Center(
-              child: Switch(
-                value: value,
-                onChanged: onChanged,
-                activeTrackColor: theme.colorScheme.primary,
-                activeThumbColor: theme.colorScheme.onPrimary,
-                inactiveThumbColor: theme.colorScheme.outline,
-                inactiveTrackColor: theme.colorScheme.surface,
-              ),
-            ),
-          ),
-        ],
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeTrackColor: theme.colorScheme.primary,
+          activeThumbColor: theme.colorScheme.onPrimary,
+        ),
       ),
     );
   }
@@ -718,21 +718,39 @@ class _ButtonEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return _SettingsEntry(
       label: label,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Theme.of(context).inputDecorationTheme.fillColor,
-          shape: RoundedRectangleBorder(borderRadius: Theme.of(context).inputDecorationTheme.borderRadius),
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
-        ),
-        onPressed: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: Text(
-            buttonLabel,
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    buttonLabel,
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white.withAlpha(200) : const Color(0xFF4B5563),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: isDark ? Colors.white.withAlpha(120) : Colors.black.withAlpha(100),
+                ),
+              ],
+            ),
           ),
         ),
       ),
