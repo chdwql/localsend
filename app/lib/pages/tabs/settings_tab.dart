@@ -310,22 +310,14 @@ class SettingsTab extends StatelessWidget {
             _SettingsSection(
               title: t.settingsTab.network.title,
               children: [
-                AnimatedCrossFade(
-                  crossFadeState:
-                      vm.serverState != null &&
-                          (vm.serverState!.alias != vm.settings.alias ||
-                              vm.serverState!.port != vm.settings.port ||
-                              vm.serverState!.https != vm.settings.https)
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                  alignment: Alignment.topLeft,
-                  firstChild: Container(),
-                  secondChild: Padding(
+                if (vm.serverState != null &&
+                    (vm.serverState!.alias != vm.settings.alias ||
+                        vm.serverState!.port != vm.settings.port ||
+                        vm.serverState!.https != vm.settings.https))
+                  Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(t.settingsTab.network.needRestart, style: TextStyle(color: Theme.of(context).colorScheme.warning)),
                   ),
-                ),
                 _SettingsEntry(
                   label: '${t.settingsTab.network.server}${vm.serverState == null ? ' (${t.general.offline})' : ''}',
                   child: DecoratedBox(
@@ -499,32 +491,22 @@ class SettingsTab extends StatelessWidget {
                       },
                     ),
                   ),
-                AnimatedCrossFade(
-                  crossFadeState: vm.settings.port != defaultPort ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                  alignment: Alignment.topLeft,
-                  firstChild: Container(),
-                  secondChild: Padding(
+                if (vm.settings.port != defaultPort)
+                  Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       t.settingsTab.network.portWarning(defaultPort: defaultPort),
                       style: const TextStyle(color: Colors.grey),
                     ),
                   ),
-                ),
-                AnimatedCrossFade(
-                  crossFadeState: vm.settings.multicastGroup != defaultMulticastGroup ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                  alignment: Alignment.topLeft,
-                  firstChild: Container(),
-                  secondChild: Padding(
+                if (vm.settings.multicastGroup != defaultMulticastGroup)
+                  Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       t.settingsTab.network.multicastGroupWarning(defaultMulticast: defaultMulticastGroup),
                       style: const TextStyle(color: Colors.grey),
                     ),
                   ),
-                ),
               ],
             ),
             _SettingsSection(
@@ -630,42 +612,48 @@ class _SettingsEntry extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white : const Color(0xFF1E1F22),
-                  ),
-                ),
-                if (description != null) ...[
-                  const SizedBox(height: 2),
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 52),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    description!,
+                    label,
                     style: TextStyle(
-                      fontSize: 12.5,
-                      color: isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280),
-                      height: 1.25,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white : const Color(0xFF1E1F22),
                     ),
                   ),
+                  if (description != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      description!,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: isDark ? Colors.white.withAlpha(140) : const Color(0xFF6B7280),
+                        height: 1.25,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 50, maxWidth: 175),
-            child: child,
-          ),
-        ],
+            const SizedBox(width: 12),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 50, maxWidth: 175),
+              child: child,
+            ),
+          ],
+        ),
       ),
     );
   }
